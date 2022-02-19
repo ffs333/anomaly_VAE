@@ -26,8 +26,9 @@ def pipeline(model, input_wav, classifier=None, secs=3):
     if volume_met[0] != 1 and volume_met[1] < 5000:
         print("Engine turned off. Silence in audio.")
         return -1, -1, 0
-
-    spec = make_batch(audio)
+    
+    mel = make_mel(audio)
+    spec = make_batch(mel)
 
     model_out = model.run(None, {'input_1': spec})
     mse_val = numpy_mse(spec, model_out[0])
