@@ -8,6 +8,8 @@ I used torchaudio for loading and processing wav files. It's usually 30 minutes 
 ![](imgs/vae_arch.jpeg)
 ### Anomaly detection
 For anomaly detection used a VAE-based models. **Base VAE** model with 36118561 parametes and **VAE-light** model with  15857089 parameters.
+
+VAE trained only on normal data restore the spectrogram. The spectrogram restores as if it's typical engines work, but saves the unique artifacts of these sample. And after we calculate MSE between input and output. If it is more than previously set threshold it's probably anomaly. 
 ### Classification
 CNN based model with linear output.
 
