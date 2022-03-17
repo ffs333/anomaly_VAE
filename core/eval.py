@@ -69,17 +69,14 @@ def evaluation_class(model, eval_loader, epoch, metric, num_classes=1):
     model.eval()
     metric.flush()
     eval_loss = None
-    low_metric = AccuracyMetric()
-    mid_metric = AccuracyMetric()
-    max_metric = AccuracyMetric()
-    low_metric.flush()
-    mid_metric.flush()
-    max_metric.flush()
+    if num_classes > 1:
+        class_metrics = {}
+        for i in range(num_classes):
+            class_metrics[f'acc_{i}'] = AccuracyMetric(silence=True)
     with torch.no_grad():
         for idx, batch in enumerate(eval_loader):
 
             data, label = batch
-
             model_out = model.forward(data)
 
             if num_classes == 1:
@@ -98,24 +95,22 @@ def evaluation_class(model, eval_loader, epoch, metric, num_classes=1):
             else:
                 model_out = torch.argmax(model_out, dim=1)
             metric.update(torch.squeeze(model_out), label)
-            if num_classes != 1:
-                low_index = (label == 0).nonzero().squeeze()
-                low_metric.update(torch.index_select(model_out, 0, low_index), torch.index_select(label, 0, low_index))
+            if num_classes > 1:
+                for i in range(num_classes):
+                    low_index = (label == i).nonzero().squeeze()
+                    class_metrics[f'acc_{i}'].update(torch.index_select(model_out, 0, low_index),
+                                                     torch.index_select(label, 0, low_index))
 
-                mid_index = (label == 1).nonzero().squeeze()
-                mid_metric.update(torch.index_select(model_out, 0, mid_index), torch.index_select(label, 0, mid_index))
+    if num_classes > 1:
+        for i in range(num_classes):
+            cl_acc = round(class_metrics[f"acc_{i}"].compute().item(), 3)
+            if i % 3 == 0 and i != 0:
+                print(f'Accuracy for class {i}: {cl_acc}')
+            else:
+                print(f'Accuracy for class {i}: {cl_acc}', end='  |  ')
 
-                max_index = (label == 2).nonzero().squeeze()
-                max_metric.update(torch.index_select(model_out, 0, max_index), torch.index_select(label, 0, max_index))
+    print(f'\nEval epoch {epoch} loss: {eval_loss}')
 
-    print(f'Eval epoch {epoch} loss: {eval_loss}')
-    if num_classes != 1:
-        print('\nLOW POWER')
-        low_metric.compute()
-        print('MID POWER')
-        mid_metric.compute()
-        print('MAX POWER\nFULL:')
-        max_metric.compute()
     if eval_loss is None:
         return metric.compute()
     return eval_loss, metric.compute()

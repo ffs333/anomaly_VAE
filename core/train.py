@@ -26,7 +26,7 @@ def training(model, epochs, train_dataloader, eval_dataloader, optimizer,
     :param mfcc_step: (int) save mfcc spectrogram every 'mfcc_step' epochs
     :param mel_step: (int) save mel spectrogram every 'mel_step' epochs
     :param save_step: (int)
-    :param conf_dumpers: (list) path to dump; dump index; config data; dump_folder
+    :param conf_dumpers: (list) path to dump; dump index; config data; dump folder; model type
     """
     model.train()
     best_metric_val = None
@@ -80,7 +80,7 @@ def training(model, epochs, train_dataloader, eval_dataloader, optimizer,
             torch.save(model.state_dict(), f'{output_check}/autoenc_{epoch}.ckpt')
 
         if best_metric_val is None or eval_loss <= best_metric_val:
-            torch.save(model.state_dict(), f'{conf_dumpers[3]}/best_CHECK_{conf_dumpers[1]}.ckpt')
+            torch.save(model.state_dict(), f'{conf_dumpers[3]}/{conf_dumpers[4]}_best_CHECK_{conf_dumpers[1]}.ckpt')
             conf_dumpers[2]['score'] = eval_loss.item()
             conf_dumpers[2]['recons'] = losses["Reconstruction_Loss"].item()
             config_dump(conf_dumpers[0], conf_dumpers[2])
@@ -100,7 +100,7 @@ def training_class(model, epochs, train_dataloader, eval_dataloader,
     :param output_check: (str) path to save model checkpoints
     :param eval_step: (int) make evaluation every 'eval_step' epochs
     :param save_step: (int)
-    :param conf_dumpers: (list) path to dump; dump index; config data; dump_folder
+    :param conf_dumpers: (list) path to dump; dump index; config data; dump folder; model type
     :param num_classes: (int)
     """
     model.train()
@@ -146,7 +146,7 @@ def training_class(model, epochs, train_dataloader, eval_dataloader,
             torch.save(model.state_dict(), f'{output_check}/classifier_{epoch}.ckpt')
 
         if best_metric_val is None or accuracy >= best_metric_val:
-            torch.save(model.state_dict(), f'{conf_dumpers[3]}/best_CHECK_{conf_dumpers[1]}.ckpt')
+            torch.save(model.state_dict(), f'{conf_dumpers[3]}/{conf_dumpers[4]}_best_CHECK_{conf_dumpers[1]}.ckpt')
             conf_dumpers[2]['score'] = accuracy.item()
             config_dump(conf_dumpers[0], conf_dumpers[2])
             best_metric_val = accuracy

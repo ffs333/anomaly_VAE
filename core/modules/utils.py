@@ -116,7 +116,7 @@ def config_dump(path, conf_file):
     :param path: path to save file
     :param conf_file: config data
     """
-    if not os.path.exists((path.split('/config_exp')[0])):
-        os.makedirs(path.split('/config_exp')[0])
+    if not os.path.exists((path.split('/config_')[0])):
+        os.makedirs(path.split('/config_')[0])
     with open(path, 'w') as f:
         json.dump(conf_file, f)

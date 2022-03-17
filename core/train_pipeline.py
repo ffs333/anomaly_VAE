@@ -80,15 +80,16 @@ def prepare(config, raw_config):
                                   eta_min=config.learning_rate * 0.03,
                                   last_epoch=-1)
 
-    path_dump, num_dump = uniquify(f'{config.output_config}/config_exp.cfg')
+    path_dump, num_dump = uniquify(f'{config.output_config}/config_{config["type"]}.cfg')
     config_dump(path_dump, raw_config)
     print(f'Current train loop config saved here: {path_dump}')
 
     if config['type'] in ['vae', 'vae_light']:
         training(model, config.num_epochs, train_dataloader, eval_dataloader, optimizer, scheduler,
                  config.output_check, config.output_spec, config.eval_step_epochs, config.mfcc_step_epochs,
-                 config.mel_step_epochs, config.save_epoch, [path_dump, num_dump, raw_config, config.output_config])
+                 config.mel_step_epochs, config.save_epoch,
+                 [path_dump, num_dump, raw_config, config.output_config, config["type"]])
     elif config['type'] == 'classification':
         training_class(model, config.num_epochs, train_dataloader, eval_dataloader, optimizer, scheduler,
-                       config.output_check, config.eval_step_epochs, config.save_epoch, config.num_classes,
-                       [path_dump, num_dump, raw_config, config.output_config])
+                       config.output_check, config.eval_step_epochs, config.save_epoch,
+                       [path_dump, num_dump, raw_config, config.output_config, config["type"]], config.num_classes)

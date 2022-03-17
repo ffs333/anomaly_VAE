@@ -11,6 +11,7 @@ class AccuracyMetric(Metric):
         super(AccuracyMetric, self).__init__()
         self._total_elements = 0
         self._total_td = None
+        self._silence = silence
 
     def update(self, pred, target):
         if self._total_td is None:
@@ -23,5 +24,7 @@ class AccuracyMetric(Metric):
         self._total_td, self._total_elements = None, 0
 
     def compute(self):
-        print(f'Accuracy: {torch.true_divide(self._total_td, self._total_elements)}')
-        return torch.true_divide(self._total_td, self._total_elements)
+        val = torch.true_divide(self._total_td, self._total_elements)
+        if not self._silence:
+            print(f'Accuracy: {val}\n__________________________________________________')
+        return val
