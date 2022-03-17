@@ -28,20 +28,20 @@ def mel_bank(n_mels=256):
 
 def create_dct(n_mfcc=32, n_mels=256):
     n = np.arange(float(n_mels))
-    k = np.expand_dims(np.arange(float(n_mfcc)), axis=(1))
+    k = np.expand_dims(np.arange(float(n_mfcc)), axis=1)
     dct = np.cos(math.pi / float(n_mels) * (n + 0.5) * k).astype('float32')
     dct[0] *= 1.0 / math.sqrt(2.0)
     dct *= math.sqrt(2.0 / float(n_mels))
     return dct.T
 
 
-def make_mel(x):
+def make_spec(x, mel=True):
     x = stft(x, n_fft=2048, hop_length=563, win_length=2048, center=True)
 
     x = np.abs(x) ** 2.0
-    mel_base = mel_bank()
-    x = np.dot(np.transpose(x, (1, 0)), mel_base)
-    x = np.transpose(x, (1, 0))
+    if mel:
+        x = np.dot(np.transpose(x, (1, 0)), mel_bank())
+        x = np.transpose(x, (1, 0))
 
     return x
 

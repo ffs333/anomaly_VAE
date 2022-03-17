@@ -18,5 +18,5 @@ def parse_args():
 if __name__ == '__main__':
     print('Start training process.', 'Info prints via TensorBoard', sep='\n')
     args = parse_args()
-    data_conf, model_conf, train_conf = prepare_config(args.config)
-    go_pipeline(data_conf, model_conf, train_conf)
+    data_conf, model_conf, train_conf, conf = prepare_config(args.config)
+    go_pipeline(data_conf, model_conf, train_conf, conf)

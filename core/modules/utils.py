@@ -1,4 +1,7 @@
 #!/usr/bin/env
+import os
+import json
+
 import torch
 
 from typing import Callable, Sequence
@@ -24,9 +27,9 @@ def make_sequential_collate_fn(device):
         # repack labels and batch into separate entities
         if len(batch[0]) == 2:
             meta = [(5 * e[0]).type(torch.float32).unsqueeze(0) for e in batch]
-            batch = [e[1] for e in batch]
 
             proc_meta = torch.cat(meta, dim=0).to(device)
+        batch = [e['data'] for e in batch]
         proc_batch = torch.cat(batch, dim=0).to(device)
 
         proc_batch = proc_batch.unsqueeze(1)
@@ -89,3 +92,31 @@ def process_rec(idx, recs: Sequence, preproc_fn: Callable = None):
     :return torch tensor with data
     """
     return recs[idx]
+
+
+def uniquify(path):
+    """
+    Make unique path if file exists
+    :param path: path to save file
+    :return new path available and added number
+    """
+    filename, extension = os.path.splitext(path)
+    counter = 1
+
+    while os.path.exists(path):
+        path = filename + "_" + str(counter) + extension
+        counter += 1
+
+    return path, counter-1
+
+
+def config_dump(path, conf_file):
+    """
+    Dump config file
+    :param path: path to save file
+    :param conf_file: config data
+    """
+    if not os.path.exists((path.split('/config_exp')[0])):
+        os.makedirs(path.split('/config_exp')[0])
+    with open(path, 'w') as f:
+        json.dump(conf_file, f)

@@ -51,8 +51,8 @@ def draw(inp, recons, epoch, step, out_path, ev=True):
         sf.write(out_path + f'/{epoch}_{hz}_audio_in.wav', audio_in, 48000)
         sf.write(out_path + f'/{epoch}_{hz}_audio_rec.wav', audio_rec, 48000)
 
-        mel_in = librosa.feature.melspectrogram(audio_in, sr=48000)
-        mel_rec = librosa.feature.melspectrogram(audio_rec, sr=48000)
+        mel_in = librosa.feature.melspectrogram(y=audio_in, sr=48000)
+        mel_rec = librosa.feature.melspectrogram(y=audio_rec, sr=48000)
 
         paint(mel_in, out_path, epoch, hz, 'mel', 'in')
         paint(mel_rec, out_path, epoch, hz, 'mel', 'rec')

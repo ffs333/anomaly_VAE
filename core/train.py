@@ -6,11 +6,12 @@ from torch.utils.tensorboard import SummaryWriter
 from core.eval import evaluation, evaluation_class
 from tools.gener import draw
 from metrics.accuracy import AccuracyMetric
+from core.modules.utils import config_dump
 
 
 def training(model, epochs, train_dataloader, eval_dataloader, optimizer,
              scheduler, output_check, output_spec, eval_step, mfcc_step,
-             mel_step, save_step):
+             mel_step, save_step, conf_dumpers):
     """
     Model training process
     :param model: (pytorch nn.Module) model to train
@@ -25,6 +26,7 @@ def training(model, epochs, train_dataloader, eval_dataloader, optimizer,
     :param mfcc_step: (int) save mfcc spectrogram every 'mfcc_step' epochs
     :param mel_step: (int) save mel spectrogram every 'mel_step' epochs
     :param save_step: (int)
+    :param conf_dumpers: (list) path to dump; dump index; config data; dump_folder
     """
     model.train()
     best_metric_val = None
@@ -78,12 +80,15 @@ def training(model, epochs, train_dataloader, eval_dataloader, optimizer,
             torch.save(model.state_dict(), f'{output_check}/autoenc_{epoch}.ckpt')
 
         if best_metric_val is None or eval_loss <= best_metric_val:
-            torch.save(model.state_dict(), f'{output_check}/best_CHECK.ckpt')
+            torch.save(model.state_dict(), f'{conf_dumpers[3]}/best_CHECK_{conf_dumpers[1]}.ckpt')
+            conf_dumpers[2]['score'] = eval_loss.item()
+            conf_dumpers[2]['recons'] = losses["Reconstruction_Loss"].item()
+            config_dump(conf_dumpers[0], conf_dumpers[2])
             best_metric_val = eval_loss
 
 
 def training_class(model, epochs, train_dataloader, eval_dataloader,
-                   optimizer, scheduler, output_check, eval_step, save_step, num_classes=1):
+                   optimizer, scheduler, output_check, eval_step, save_step, conf_dumpers, num_classes=1):
     """
     Model training process
     :param model: (pytorch nn.Module) model to train
@@ -95,6 +100,7 @@ def training_class(model, epochs, train_dataloader, eval_dataloader,
     :param output_check: (str) path to save model checkpoints
     :param eval_step: (int) make evaluation every 'eval_step' epochs
     :param save_step: (int)
+    :param conf_dumpers: (list) path to dump; dump index; config data; dump_folder
     :param num_classes: (int)
     """
     model.train()
@@ -140,5 +146,7 @@ def training_class(model, epochs, train_dataloader, eval_dataloader,
             torch.save(model.state_dict(), f'{output_check}/classifier_{epoch}.ckpt')
 
         if best_metric_val is None or accuracy >= best_metric_val:
-            torch.save(model.state_dict(), f'{output_check}/best_CHECK.ckpt')
+            torch.save(model.state_dict(), f'{conf_dumpers[3]}/best_CHECK_{conf_dumpers[1]}.ckpt')
+            conf_dumpers[2]['score'] = accuracy.item()
+            config_dump(conf_dumpers[0], conf_dumpers[2])
             best_metric_val = accuracy
